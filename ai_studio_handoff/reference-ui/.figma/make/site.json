@@ -1,0 +1,10 @@
+{
+  "description": "This web application streamlines project planning by allowing users to create, manage, and collaborate on plans efficiently, enhancing productivity and organization.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

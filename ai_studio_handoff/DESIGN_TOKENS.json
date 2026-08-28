@@ -1,0 +1,42 @@
+{
+  "direction": "rtl",
+  "locale": "fa-IR",
+  "primaryFont": "Vazirmatn",
+  "fallbackFonts": ["Noto Naskh Arabic", "Noto Sans Arabic"],
+  "minimumTouchTargetDp": 48,
+  "spacingBaseDp": 8,
+  "cornerRadiusDp": {
+    "small": 8,
+    "medium": 12,
+    "large": 16,
+    "sheet": 24
+  },
+  "colors": {
+    "primary": "#2B5329",
+    "primaryLight": "#3D7338",
+    "background": "#F7F3ED",
+    "surface": "#FDFBF8",
+    "textPrimary": "#1A1A18",
+    "textSecondary": "#6B6358",
+    "border": "#DDD6CC",
+    "secondarySurface": "#EDE8E0",
+    "success": "#3A7A3A",
+    "warning": "#B87A28",
+    "error": "#A84040",
+    "nightBackground": "#1C1A16",
+    "nightSurface": "#252218",
+    "nightText": "#E8D9BE",
+    "nightAccent": "#D4924A",
+    "darkBackground": "#1E2020",
+    "darkSurface": "#282C2C",
+    "darkText": "#D8D4CC"
+  },
+  "reading": {
+    "defaultFontSp": 17,
+    "minimumFontSp": 12,
+    "defaultLineHeightMultiplier": 2.0,
+    "defaultTheme": "warm",
+    "defaultNavigation": "vertical-scroll"
+  }
+}
+

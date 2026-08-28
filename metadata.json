@@ -1,0 +1,6 @@
+{
+  "name": "کتاب‌خوان",
+  "description": "اپلیکیشن بومی و آفلاین کتاب‌خوان فارسی با کتابخانه محلی، پردازش فایل، شخصی‌سازی پوسته و قلم، نشانک‌گذاری و جستجو",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

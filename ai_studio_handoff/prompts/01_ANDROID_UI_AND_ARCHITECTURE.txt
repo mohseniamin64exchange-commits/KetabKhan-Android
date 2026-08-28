@@ -1,0 +1,77 @@
+Create a native Android application from the attached handoff package.
+
+Hard requirements:
+- Kotlin only.
+- Jetpack Compose only for the UI.
+- Material 3 foundations with the exact Persian visual identity in DESIGN_TOKENS.json.
+- Do not create a web app, React Native app, Flutter app, WebView wrapper, or PWA.
+- The attached reference-ui TSX project is a visual and interaction reference only. Rebuild the UI natively; do not reuse TSX as production code.
+- All visible UI is Persian, locale fa-IR, and RTL.
+- Use real Android system bars, WindowInsets, edge-to-edge rules, back navigation, file picker, share sheet, and accessibility semantics.
+- Minimum touch target is 48dp. No essential UI text below 12sp.
+- Use responsive Compose layouts that work on compact and larger Android phones; do not hardcode a 360×800 canvas.
+- Use Material Symbols/Icons or consistent vector assets, never emoji as UI icons.
+
+First read README_FA.txt, PRODUCT_SPEC_FA.txt, DESIGN_TOKENS.json, and inspect all screens in reference-ui. Then show a concise implementation plan before changing files. After the plan, create the project and run it in the Android emulator.
+
+Architecture:
+- Single-activity Compose application.
+- Clean separation of UI, domain, and data layers without unnecessary complexity.
+- Navigation Compose with typed or centralized routes.
+- ViewModels with StateFlow for screen state.
+- Coroutines for background operations.
+- Room for local metadata, library records, reading location, bookmarks, conversion jobs, and settings.
+- DataStore for global reading and appearance preferences.
+- WorkManager for long-running conversion jobs that must survive leaving the screen or app recreation.
+- Storage Access Framework for selecting PDFs, importing books/backups, exporting files, and sharing.
+- Persisted URI permissions where appropriate.
+- No storage permission broad enough to scan the user’s whole device.
+- No server, authentication, analytics, advertising, or cloud database in version one.
+
+Create all production-quality screens represented by the reference:
+1. Splash
+2. Empty library
+3. Library grid
+4. Library list and sorting
+5. Select PDF
+6. Conversion progress
+7. Book details editor
+8. Structure review
+9. Suspicious issue review
+10. Final preview
+11. Distraction-free reader
+12. Reader controls
+13. Contents/bookmarks/search
+14. Reading settings
+15. Book options and deletion confirmation
+16. Export book
+17. Import book and duplicate handling
+18. Backup and restore
+19. General settings
+20. Loading, error, permission, conflict, and success states
+
+UI behavior:
+- The app opens to the library after Splash.
+- Remove the developer screen navigator that existed in the Figma Make prototype.
+- Do not simulate the status/navigation bars.
+- Reader controls appear when the reading area is tapped.
+- Reading settings appear as a Compose ModalBottomSheet over the reader and update the preview immediately.
+- Footnote markers open an accessible bottom sheet.
+- Destructive actions require confirmation.
+- Preserve unfinished creation state when the user navigates away.
+- Support process recreation and configuration changes.
+
+For this first prompt:
+- Implement the complete architecture, navigation, local database schema, settings persistence, reusable design system, and every UI screen.
+- Use realistic local sample data only where the real PDF engine is not implemented yet.
+- Wire every button and navigation path.
+- Make the project compile with no errors and launch in the embedded Android emulator.
+- Do not claim PDF conversion is complete yet; expose clear interfaces and placeholder repositories for the second stage.
+
+Before finishing:
+- Build the project.
+- Fix all compilation errors.
+- Launch it in the emulator.
+- Verify RTL, system back, minimum touch targets, font rendering, light/warm/dark/night themes, library grid/list, and every navigation path.
+- Summarize what is complete and what remains for stage two.
+

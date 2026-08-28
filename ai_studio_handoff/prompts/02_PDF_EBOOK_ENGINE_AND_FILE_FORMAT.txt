@@ -1,0 +1,73 @@
+Continue the existing native Kotlin/Jetpack Compose Android project. Do not recreate the project and do not redesign screens that already match the reference.
+
+First read PRODUCT_SPEC_FA.txt again and inspect the existing interfaces, database, WorkManager jobs, and UI states. Present a concise plan, then implement the complete version-one functionality below.
+
+PDF ingestion:
+- Select PDFs through Android Storage Access Framework.
+- Support text PDFs, scanned PDFs, and mixed PDFs at page level.
+- Validate damaged, unsupported, encrypted, and password-protected PDFs.
+- Never store PDF passwords.
+- Never delete the user’s original public PDF.
+- Keep only an internal working copy when required and track it explicitly.
+
+Extraction pipeline:
+- Extract embedded text from text pages.
+- Use a reliable on-device OCR path for scanned pages when available.
+- Normalize Persian ی/ک, whitespace, broken lines, paragraphs, repeated headers/footers, and page numbers without rewriting the author’s language.
+- Detect columns and preserve correct reading order.
+- Extract images and captions.
+- Preserve difficult formulas, complex tables, and diagrams as images when structural conversion would be unreliable.
+- Identify introduction, preface, chapters, subchapters, references, glossary, index, and appendices.
+- Link footnotes to their markers.
+- Assign confidence levels to detected structure and create review issues only for uncertain content.
+- Run conversion with WorkManager, provide real progress, support cancellation, recover after app restart, and never pretend a failed job succeeded.
+
+Online enhancement boundary:
+- Reading and local books must work fully offline.
+- Online enhancement is optional and disabled by default.
+- Ask for explicit consent before transmitting any content.
+- Create a replaceable service interface; do not hardcode API keys or secrets in the client.
+- Since native Android apps in AI Studio are client-side, do not invent a secret server or expose credentials.
+- If no safe online service is configured, keep the feature disabled and explain this accurately in the UI.
+
+Reflowable book model and reader:
+- Store content as ordered semantic blocks with stable content anchors.
+- Changing font size must reflow text; never render the whole book as fixed PDF page screenshots.
+- Preserve current location by content anchor and relative offset.
+- Implement font family, font size, line spacing, paragraph spacing, margins, right/justify alignment, vertical scroll/page mode, keep-screen-on, light/cream/dark themes, and night reading mode.
+- Night reading mode has independent in-app brightness and warmth controls.
+- Apply screen brightness only while the reader is active and restore previous behavior afterward.
+- Images open in a zoomable full-screen viewer.
+- Wide tables scroll inside their own container.
+- Footnotes open in a bottom sheet.
+- Implement contents navigation, full-text search, bookmarks, and reading progress.
+
+Proprietary shareable book format:
+- Use the temporary extension .bookapp from one centralized constant so it can be renamed later.
+- Implement it as a versioned container with manifest, metadata, cover, structured content, images, footnotes, and table of contents.
+- Add checksum/integrity verification, schema version, minimum supported reader version, safe path validation, and decompression size limits.
+- Reject path traversal, zip bombs, corrupted payloads, and unsupported future versions.
+- Do not execute scripts or active content from imported books.
+- Exclude bookmarks, history, reading position, brightness, and personal settings.
+- Register an Android intent filter for opening supported book files, while also supporting in-app import.
+- Handle duplicates: replace, keep both, or cancel.
+
+Backup format:
+- Keep backup format separate from .bookapp.
+- Back up selected/all books plus optional reading locations, bookmarks, and settings.
+- Show contents and date before restore.
+- Resolve conflicts with replace, keep both, or cancel.
+- Validate integrity and protect against unsafe archive paths and excessive extraction sizes.
+
+Health validation:
+- Before adding a converted book to the library, reopen it and validate non-empty content, chapter order, table-of-contents anchors, images, footnotes, Persian rendering, and reflow behavior.
+- A failed health check keeps the job in a recoverable error/review state and does not delete the internal working PDF.
+
+Testing and completion:
+- Add unit tests for normalization, structure confidence, content anchors, manifest/version checks, checksum failures, duplicate handling, and archive security.
+- Add integration tests for create/import/export/backup/restore flows.
+- Test with small synthetic sample PDFs representing text, scan, mixed, RTL, two-column, footnotes, tables, and encrypted input. Do not bundle copyrighted books.
+- Build and run the app in the emulator.
+- Fix all build/runtime errors.
+- Clearly report any feature that could not be implemented safely rather than using a fake implementation.
+

@@ -1,0 +1,38 @@
+Perform a final production-readiness audit of the existing native Android e-book reader. Do not add new product features and do not replace working architecture.
+
+Audit and fix:
+- Kotlin/Compose compilation, warnings that indicate real defects, crashes, ANRs, memory leaks, and lifecycle errors.
+- RTL correctness and Persian glyph rendering on all screens.
+- Android system back and predictive back behavior.
+- WindowInsets, status/navigation bars, keyboard insets, rotation, process recreation, compact and larger phone sizes.
+- Minimum 48dp touch targets, accessibility labels, focus order, screen-reader semantics, contrast, font scaling, and reduced-motion behavior.
+- Library persistence, reading anchors, bookmarks, search, settings, night mode, brightness restoration, and keep-screen-on cleanup.
+- WorkManager cancellation, restart recovery, low storage, no internet, denied URI access, damaged/encrypted PDF, OCR failure, and partial conversion.
+- Original public PDF must never be automatically deleted.
+- Imported archives must be protected from path traversal, zip bombs, oversized assets, malformed manifests, unsupported versions, and corrupted checksums.
+- Exported .bookapp must exclude all personal reading data.
+- Backup/restore conflicts and transactional rollback.
+- Avoid logging book text, passwords, file contents, or sensitive paths.
+- Remove debug screen selectors, fake buttons, placeholder success states, sample copyrighted titles/covers, test-only navigation, and development-only data from the release build.
+
+Testing:
+- Run all unit and integration tests.
+- Add Compose UI tests for the five critical flows: create book, read and change settings, import book, export/share book, and backup/restore.
+- Perform a clean build from scratch.
+- Launch and exercise the app in the embedded emulator.
+- If physical-device installation is available, prepare an installable internal test build.
+
+Release preparation:
+- Use a stable application ID placeholder that can be changed before publication.
+- Set versionName 1.0.0 and versionCode 1 for the first test release.
+- Create a release checklist but do not invent or expose a signing key.
+- Do not publish publicly without explicit approval.
+- Produce a debug/internal-testing artifact and report its exact location or available installation action.
+
+Finish with a concise report containing:
+1. Tests run and results.
+2. Defects fixed.
+3. Remaining limitations, if any.
+4. Exact steps to install the test build on an Android phone.
+5. Items still required before Google Play public release.
+
