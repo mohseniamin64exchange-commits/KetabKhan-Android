@@ -9,6 +9,8 @@ import com.ketabkhan.reader.data.preferences.ReaderPreferencesRepository
 import com.ketabkhan.reader.data.repository.BookRepository
 import com.ketabkhan.reader.data.sample.SampleData
 import com.ketabkhan.reader.ui.navigation.Screen
+import com.ketabkhan.reader.util.AppConstants
+import com.ketabkhan.reader.work.WorkManagerHelper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -434,42 +436,21 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    // Conversion Process simulation & handling
+    // Conversion Process handling
     fun startConversion() {
         _conversionProgress.value = 0f
         _conversionCompleted.value = false
         _conversionStages.value = listOf(
-            ConversionStage("بررسی فایل", isCurrent = true),
-            ConversionStage("استخراج متن"),
-            ConversionStage("تشخیص تصاویر و پاورقی‌ها"),
-            ConversionStage("تشخیص فصل‌ها"),
-            ConversionStage("اصلاح ساختار"),
-            ConversionStage("آماده‌سازی پیش‌نمایش")
+            ConversionStage("ثبت درخواست در WorkManager", isCurrent = true, isComplete = true),
+            ConversionStage("استخراج ساختار و متون PDF (${AppConstants.STATUS_IN_DEVELOPMENT})"),
+            ConversionStage("تشخیص هوشمند عناوین و پاورقی‌ها (${AppConstants.STATUS_IN_DEVELOPMENT})"),
+            ConversionStage("آماده‌سازی پیش‌نمایش و داده‌ها (${AppConstants.STATUS_IN_DEVELOPMENT})")
         )
+        
+        // Enqueue real background worker via WorkManager
+        WorkManagerHelper.scheduleBookProcessing(getApplication(), _selectedPdfName.value)
+        
         navigateTo(Screen.Conversion)
-
-        conversionJob?.cancel()
-        conversionJob = viewModelScope.launch {
-            val stages = _conversionStages.value.map { it.name }
-            for (i in stages.indices) {
-                _conversionStages.value = stages.mapIndexed { index, name ->
-                    ConversionStage(
-                        name = name,
-                        isComplete = index < i,
-                        isCurrent = index == i
-                    )
-                }
-                for (step in 1..20) {
-                    delay(35)
-                    val baseProgress = (i.toFloat() / stages.size) * 100f
-                    val stepProgress = (step.toFloat() / 20f) * (100f / stages.size)
-                    _conversionProgress.value = (baseProgress + stepProgress).coerceAtMost(100f)
-                }
-            }
-            _conversionStages.value = stages.map { ConversionStage(it, isComplete = true, isCurrent = false) }
-            _conversionProgress.value = 100f
-            _conversionCompleted.value = true
-        }
     }
 
     fun cancelConversion() {
@@ -563,31 +544,14 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
         _importState.value = state
     }
 
-    fun performImportBook() {
-        val newBook = BookEntity(
-            id = System.currentTimeMillis().toString(),
-            title = "کتاب وارد شده (نسخه دمو)",
-            author = "گردآورنده نمونه",
-            translator = "",
-            publisher = "نشر آزمایشی",
-            publishYear = "۱۴۰۳",
-            progress = 0,
-            status = BookStatus.IMPORTED.name,
-            coverColor = "#4A3D5C",
-            coverAccent = "#75608B",
-            lastRead = null,
-            addedDate = "امروز",
-            chaptersCount = 1,
-            currentChapterIndex = 0,
-            currentScrollOffset = 0,
-            isFavorite = false,
-            chaptersJson = SampleData.getSampleBooks().last().chaptersJson
-        )
+    fun handleIncomingBookUri(uriString: String) {
+        _importState.value = "selected"
+        navigateTo(Screen.ImportBook)
+        showSnackbar("فایل بسته کتاب دریافت شد. برای بررسی ساختار آماده است.")
+    }
 
-        viewModelScope.launch {
-            repository.insertBook(newBook)
-            _importState.value = "success"
-        }
+    fun performImportBook() {
+        showSnackbar(AppConstants.MSG_IMPORT_BOOKAPP_DEV)
     }
 
     // Backup & Restore
@@ -604,11 +568,7 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun performBackup() {
-        viewModelScope.launch {
-            delay(500)
-            _backupCompleted.value = true
-            showSnackbar("فایل پشتیبان با موفقیت ایجاد شد")
-        }
+        showSnackbar(AppConstants.MSG_BACKUP_RESTORE_DEV)
     }
 
     fun setRestoreState(state: String) {
@@ -616,11 +576,7 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun performRestore() {
-        viewModelScope.launch {
-            delay(600)
-            _restoreState.value = "success"
-            showSnackbar("بازیابی اطلاعات با موفقیت انجام شد")
-        }
+        showSnackbar(AppConstants.MSG_BACKUP_RESTORE_DEV)
     }
 
     // Snackbar

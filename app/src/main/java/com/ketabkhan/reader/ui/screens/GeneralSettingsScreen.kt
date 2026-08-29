@@ -26,6 +26,7 @@ import com.ketabkhan.reader.ui.navigation.Screen
 import com.ketabkhan.reader.ui.theme.*
 import com.ketabkhan.reader.ui.viewmodel.BookReaderViewModel
 import com.ketabkhan.reader.ui.viewmodel.MainTab
+import com.ketabkhan.reader.util.AppConstants
 
 @Composable
 fun GeneralSettingsScreen(
@@ -197,7 +198,7 @@ fun GeneralSettingsScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     OutlinedButton(
-                        onClick = { viewModel.showSnackbar("حافظه موقت با موفقیت پاک‌سازی شد") },
+                        onClick = { viewModel.showSnackbar(AppConstants.MSG_STORAGE_CLEAR_DEV) },
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {

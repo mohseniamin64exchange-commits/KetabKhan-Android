@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.ketabkhan.reader.ui.components.AppTopBar
 import com.ketabkhan.reader.ui.theme.*
 import com.ketabkhan.reader.ui.viewmodel.BookReaderViewModel
+import com.ketabkhan.reader.util.AppConstants
 
 @Composable
 fun ExportBookScreen(
@@ -48,53 +49,20 @@ fun ExportBookScreen(
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                if (!isGenerated) {
-                    Button(
-                        onClick = {
-                            isGenerated = true
-                            viewModel.showSnackbar("فایل .bookapp با موفقیت ساخته شد")
-                        },
-                        shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Primary),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp)
-                            .testTag("generate_bookapp_button")
-                    ) {
-                        Icon(Icons.Filled.FileDownload, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("تولید فایل کتاب (.bookapp)", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
-                    }
-                } else {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        OutlinedButton(
-                            onClick = { viewModel.showSnackbar("فایل در پوشه Downloads ذخیره شد") },
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(50.dp)
-                        ) {
-                            Icon(Icons.Outlined.SaveAlt, contentDescription = null, tint = Primary)
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("ذخیره در حافظه", fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                        }
-
-                        Button(
-                            onClick = { viewModel.showSnackbar("منوی اشتراک‌گذاری باز شد") },
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Primary),
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(50.dp)
-                        ) {
-                            Icon(Icons.Outlined.Share, contentDescription = null)
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("اشتراک‌گذاری", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                        }
-                    }
+                Button(
+                    onClick = {
+                        viewModel.showSnackbar(AppConstants.MSG_EXPORT_BOOKAPP_DEV)
+                    },
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .testTag("generate_bookapp_button")
+                ) {
+                    Icon(Icons.Filled.FileDownload, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("تولید فایل کتاب (.bookapp)", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
                 }
             }
         },

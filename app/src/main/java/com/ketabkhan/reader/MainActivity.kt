@@ -1,5 +1,6 @@
 package com.ketabkhan.reader
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,6 +12,7 @@ import androidx.compose.ui.Modifier
 import com.ketabkhan.reader.ui.screens.MainAppScreen
 import com.ketabkhan.reader.ui.theme.BookReaderTheme
 import com.ketabkhan.reader.ui.viewmodel.BookReaderViewModel
+import com.ketabkhan.reader.util.AppConstants
 
 class MainActivity : ComponentActivity() {
     private val viewModel: BookReaderViewModel by viewModels()
@@ -18,12 +20,28 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        handleIntent(intent)
         setContent {
             BookReaderTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     MainAppScreen(viewModel = viewModel)
                 }
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        val uri = intent?.data ?: return
+        val path = uri.path ?: uri.toString()
+        if (path.endsWith(AppConstants.BOOK_APP_FILE_SUFFIX, ignoreCase = true) || 
+            path.contains(AppConstants.BOOK_APP_EXTENSION, ignoreCase = true)) {
+            viewModel.handleIncomingBookUri(uri.toString())
         }
     }
 }
