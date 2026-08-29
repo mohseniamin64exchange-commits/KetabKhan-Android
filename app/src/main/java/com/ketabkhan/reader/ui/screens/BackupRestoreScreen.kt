@@ -130,46 +130,6 @@ fun BackupRestoreScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    if (backupCompleted) {
-                        Surface(
-                            shape = RoundedCornerShape(16.dp),
-                            color = SuccessBackground,
-                            border = BorderStroke(1.dp, Primary.copy(alpha = 0.3f)),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(14.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .background(Primary, CircleShape),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(Icons.Filled.Check, contentDescription = null, tint = Color.White)
-                                }
-
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = "فایل پشتیبان ketabkhan_backup.bak ایجاد شد",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 13.sp,
-                                        color = Primary
-                                    )
-                                    Text(
-                                        text = "حجم: ۴۸ کیلوبایت · امروز",
-                                        fontSize = 11.sp,
-                                        color = TextSecondary
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
-
                     Button(
                         onClick = { viewModel.performBackup() },
                         shape = RoundedCornerShape(14.dp),
@@ -186,117 +146,57 @@ fun BackupRestoreScreen(
 
                 BackupTab.RESTORE -> {
                     // Restore Tab Content
-                    when (restoreState) {
-                        "idle" -> {
-                            Surface(
-                                shape = RoundedCornerShape(18.dp),
-                                color = Surface,
-                                border = BorderStroke(1.dp, Border),
+                    Surface(
+                        shape = RoundedCornerShape(18.dp),
+                        color = Surface,
+                        border = BorderStroke(1.dp, Border),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { viewModel.performRestore() }
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(28.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Box(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { viewModel.setRestoreState("preview") }
+                                    .size(56.dp)
+                                    .background(SecondarySurface, CircleShape),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Column(
-                                    modifier = Modifier.padding(28.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(56.dp)
-                                            .background(SecondarySurface, CircleShape),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(Icons.Outlined.SettingsBackupRestore, contentDescription = null, tint = Primary, modifier = Modifier.size(28.dp))
-                                    }
-
-                                    Spacer(modifier = Modifier.height(14.dp))
-
-                                    Text(
-                                        text = "انتخاب فایل پشتیبان (.bak)",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 15.sp,
-                                        color = TextPrimary
-                                    )
-
-                                    Spacer(modifier = Modifier.height(4.dp))
-
-                                    Text(
-                                        text = "برای بازیابی اطلاعات از فایل پشتیبان قبلی ضربه بزنید",
-                                        fontSize = 12.sp,
-                                        color = TextSecondary
-                                    )
-                                }
+                                Icon(Icons.Outlined.SettingsBackupRestore, contentDescription = null, tint = Primary, modifier = Modifier.size(28.dp))
                             }
+
+                            Spacer(modifier = Modifier.height(14.dp))
+
+                            Text(
+                                text = "انتخاب فایل پشتیبان (.bak)",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp,
+                                color = TextPrimary
+                            )
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            Text(
+                                text = "برای بازیابی اطلاعات از فایل پشتیبان قبلی ضربه بزنید",
+                                fontSize = 12.sp,
+                                color = TextSecondary
+                            )
                         }
+                    }
 
-                        "preview" -> {
-                            Surface(
-                                shape = RoundedCornerShape(18.dp),
-                                color = Surface,
-                                border = BorderStroke(1.dp, Border),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Column(modifier = Modifier.padding(16.dp)) {
-                                    Text(
-                                        text = "محتوای فایل پشتیبان",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 15.sp,
-                                        color = TextPrimary,
-                                        modifier = Modifier.padding(bottom = 10.dp)
-                                    )
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                                    Text(text = "· اطلاعات ۵ کتاب در کتابخانه", fontSize = 13.sp, color = TextPrimary)
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(text = "· ۳ نشانک و محل مطالعه", fontSize = 13.sp, color = TextPrimary)
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(text = "· تنظیمات شخصی فونت و پوسته", fontSize = 13.sp, color = TextPrimary)
-
-                                    Spacer(modifier = Modifier.height(16.dp))
-
-                                    Button(
-                                        onClick = { viewModel.performRestore() },
-                                        shape = RoundedCornerShape(12.dp),
-                                        colors = ButtonDefaults.buttonColors(containerColor = Primary),
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(48.dp)
-                                    ) {
-                                        Text("تأیید و اجرای بازیابی", fontWeight = FontWeight.Bold, color = Color.White)
-                                    }
-                                }
-                            }
-                        }
-
-                        "success" -> {
-                            Surface(
-                                shape = RoundedCornerShape(18.dp),
-                                color = SuccessBackground,
-                                border = BorderStroke(1.dp, Primary.copy(alpha = 0.3f)),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(24.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = StatusSuccess, modifier = Modifier.size(48.dp))
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                    Text(
-                                        text = "اطلاعات با موفقیت بازیابی شد",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp,
-                                        color = StatusSuccess
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Button(
-                                        onClick = { viewModel.setRestoreState("idle") },
-                                        shape = RoundedCornerShape(10.dp),
-                                        colors = ButtonDefaults.buttonColors(containerColor = Primary)
-                                    ) {
-                                        Text("بازگشت", color = Color.White)
-                                    }
-                                }
-                            }
-                        }
+                    Button(
+                        onClick = { viewModel.performRestore() },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                    ) {
+                        Text("اجرای بازیابی فایل", fontWeight = FontWeight.Bold, color = Color.White)
                     }
                 }
             }

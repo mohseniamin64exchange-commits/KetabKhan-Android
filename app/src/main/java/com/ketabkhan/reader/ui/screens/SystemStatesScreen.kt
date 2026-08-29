@@ -126,26 +126,26 @@ fun SystemStatesScreen(
             Spacer(modifier = Modifier.height(14.dp))
 
             // 5. Interactive Dialogs & Snackbars
-            StateCard(title = "۵. پیام‌ها و اطلاع‌رسانی‌ها") {
+            StateCard(title = "۵. پیام‌ها و اطلاع‌رسانی‌ها (پیش‌نمایش رابط کاربری)") {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedButton(
-                        onClick = { viewModel.showSnackbar("عملیات با موفقیت انجام شد") },
+                        onClick = { viewModel.showSnackbar("این پیام صرفاً پیش‌نمایش گرافیکی رابط کاربری است") },
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("پیام اعلان موفقیت", fontSize = 12.sp)
+                        Text("نمونه اعلان راهنما", fontSize = 12.sp)
                     }
 
                     Button(
-                        onClick = { viewModel.showSnackbar("فایل پشتیبان با موفقیت ذخیره شد") },
+                        onClick = { viewModel.showSnackbar("اعلان وضعیت سیستم: بدون عملیات در پس‌زمینه") },
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Primary),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("تست اعلان سیستم", fontSize = 12.sp, color = Color.White)
+                        Text("تست نمای پیام", fontSize = 12.sp, color = Color.White)
                     }
                 }
             }
@@ -157,10 +157,10 @@ fun SystemStatesScreen(
     if (showPasswordDialog) {
         AlertDialog(
             onDismissRequest = { showPasswordDialog = false },
-            title = { Text("فایل PDF رمزگذاری شده است", fontWeight = FontWeight.Bold, fontSize = 16.sp) },
+            title = { Text("فایل PDF رمزگذاری شده است (پیش‌نمایش)", fontWeight = FontWeight.Bold, fontSize = 16.sp) },
             text = {
                 Column {
-                    Text("برای بازکردن و استخراج محتوا، رمز عبور فایل را وارد کنید:", fontSize = 13.sp, color = TextSecondary)
+                    Text("برای بازکردن و استخراج محتوا، رمز عبور فایل را وارد کنید (این قابلیت همراه موتور PDF فعال خواهد شد):", fontSize = 13.sp, color = TextSecondary)
                     Spacer(modifier = Modifier.height(12.dp))
                     OutlinedTextField(
                         value = passwordInput,
@@ -176,11 +176,11 @@ fun SystemStatesScreen(
                 Button(
                     onClick = {
                         showPasswordDialog = false
-                        viewModel.showSnackbar("رمز عبور تأیید شد")
+                        viewModel.showSnackbar("بازگشایی فایل‌های دارای رمز در فاز پیاده‌سازی موتور PDF فعال می‌شود")
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Primary)
                 ) {
-                    Text("تأیید و بازگشایی", color = Color.White)
+                    Text("تأیید و بستن", color = Color.White)
                 }
             },
             dismissButton = {

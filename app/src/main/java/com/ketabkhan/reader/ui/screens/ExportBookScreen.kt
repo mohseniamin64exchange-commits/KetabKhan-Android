@@ -129,55 +129,9 @@ fun ExportBookScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Success Card when generated
-            if (isGenerated) {
-                Surface(
-                    shape = RoundedCornerShape(18.dp),
-                    color = SuccessBackground,
-                    border = BorderStroke(1.dp, Primary.copy(alpha = 0.3f)),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(14.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(44.dp)
-                                .background(Primary, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Check,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "${currentBook.title}.bookapp",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp,
-                                color = Primary
-                            )
-                            Text(
-                                text = "حجم فایل: ۱.۸ مگابایت · آماده انتقال و ارسال",
-                                fontSize = 12.sp,
-                                color = TextSecondary
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
             // Health Checklist
             Text(
-                text = "بررسی سلامت ساختار کتاب",
+                text = "مشخصات بسته استاندارد کتاب",
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
                 color = TextPrimary,
@@ -191,10 +145,10 @@ fun ExportBookScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
-                    ChecklistItem(title = "تمام ${currentBook.chaptersCount} فصل با موفقیت بسته‌بندی شدند")
-                    ChecklistItem(title = "پاورقی‌ها و شماره‌گذاری بدون اشکال است")
-                    ChecklistItem(title = "تصاویر فشرده‌سازی و بدون افت کیفیت ذخیره شدند")
-                    ChecklistItem(title = "فایل با تمام نسخه‌های کتاب‌خوان سازگار است")
+                    ChecklistItem(title = "شامل ${currentBook.chaptersCount} فصل به صورت متنی و ساختاریافته")
+                    ChecklistItem(title = "پیوندهای پاورقی و شماره‌گذاری یکپارچه")
+                    ChecklistItem(title = "ذخیره‌سازی بهینه بدون افت کیفیت")
+                    ChecklistItem(title = "سازگار با تمامی نسخه‌های کتاب‌خوان")
                 }
             }
 

@@ -7,9 +7,9 @@ import com.ketabkhan.reader.data.db.AppDatabase
 import com.ketabkhan.reader.data.model.*
 import com.ketabkhan.reader.data.preferences.ReaderPreferencesRepository
 import com.ketabkhan.reader.data.repository.BookRepository
-import com.ketabkhan.reader.data.sample.SampleData
 import com.ketabkhan.reader.ui.navigation.Screen
 import com.ketabkhan.reader.util.AppConstants
+import com.ketabkhan.reader.util.BookJsonParser
 import com.ketabkhan.reader.work.WorkManagerHelper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -186,7 +186,7 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
     val draftCoverAccent: StateFlow<String> = _draftCoverAccent.asStateFlow()
 
     // Issues Review State
-    private val _reviewIssues = MutableStateFlow<List<ReviewIssue>>(SampleData.getSampleReviewIssues())
+    private val _reviewIssues = MutableStateFlow<List<ReviewIssue>>(emptyList())
     val reviewIssues: StateFlow<List<ReviewIssue>> = _reviewIssues.asStateFlow()
 
     private val _currentIssueIndex = MutableStateFlow(0)
@@ -284,7 +284,7 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
     // Reader Methods
     fun openBook(book: BookEntity) {
         _selectedBook.value = book
-        val chapters = SampleData.jsonToChapters(book.chaptersJson)
+        val chapters = BookJsonParser.jsonToChapters(book.chaptersJson)
         _selectedBookChapters.value = chapters
         _currentChapterIndex.value = book.currentChapterIndex.coerceIn(0, (chapters.size - 1).coerceAtLeast(0))
         _readerControlsVisible.value = true
@@ -441,14 +441,11 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
         _conversionProgress.value = 0f
         _conversionCompleted.value = false
         _conversionStages.value = listOf(
-            ConversionStage("ثبت درخواست در WorkManager", isCurrent = true, isComplete = true),
+            ConversionStage("معماری WorkManager آماده است", isCurrent = true, isComplete = false),
             ConversionStage("استخراج ساختار و متون PDF (${AppConstants.STATUS_IN_DEVELOPMENT})"),
             ConversionStage("تشخیص هوشمند عناوین و پاورقی‌ها (${AppConstants.STATUS_IN_DEVELOPMENT})"),
             ConversionStage("آماده‌سازی پیش‌نمایش و داده‌ها (${AppConstants.STATUS_IN_DEVELOPMENT})")
         )
-        
-        // Enqueue real background worker via WorkManager
-        WorkManagerHelper.scheduleBookProcessing(getApplication(), _selectedPdfName.value)
         
         navigateTo(Screen.Conversion)
     }
@@ -505,38 +502,9 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    // Add Converted Book To Library
+    // Add Converted Book To Library (In development)
     fun finalizeAndAddBookToLibrary() {
-        val newId = System.currentTimeMillis().toString()
-        val sampleChapters = SampleData.getSampleBooks().first().chaptersJson
-
-        val newBook = BookEntity(
-            id = newId,
-            title = _draftTitle.value.ifBlank { "کتاب جدید" },
-            author = _draftAuthor.value.ifBlank { "نویسنده نامشخص" },
-            translator = _draftTranslator.value,
-            publisher = _draftPublisher.value,
-            publishYear = _draftPublishYear.value,
-            progress = 0,
-            status = BookStatus.READY.name,
-            coverColor = _draftCoverColor.value,
-            coverAccent = _draftCoverAccent.value,
-            lastRead = null,
-            addedDate = "امروز",
-            chaptersCount = 14,
-            currentChapterIndex = 0,
-            currentScrollOffset = 0,
-            language = _draftLanguage.value,
-            direction = _draftDirection.value,
-            isFavorite = false,
-            chaptersJson = sampleChapters
-        )
-
-        viewModelScope.launch {
-            repository.insertBook(newBook)
-            showSnackbar("کتاب با موفقیت به کتابخانه اضافه شد")
-            navigateTo(Screen.Library)
-        }
+        showSnackbar(AppConstants.MSG_PDF_CONVERSION_DEV)
     }
 
     // Import Flow

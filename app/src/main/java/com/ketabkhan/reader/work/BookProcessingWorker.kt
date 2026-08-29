@@ -26,11 +26,12 @@ class BookProcessingWorker(
             workDataOf(KEY_ERROR_MESSAGE to "مسیر فایل نامعتبر است")
         )
 
-        // Clean architecture prepared for background PDF/Book processing in Phase 2
-        return Result.success(
+        // Architecture prepared for background PDF/Book processing in Phase 2.
+        // Returns failure/pending notice because processing engine is not yet implemented.
+        return Result.failure(
             workDataOf(
-                KEY_RESULT_STATUS to "ready_for_phase2",
-                KEY_FILE_URI to fileUri
+                KEY_RESULT_STATUS to "in_development",
+                KEY_ERROR_MESSAGE to "موتور پردازش در این مرحله هنوز فعال نشده است"
             )
         )
     }
