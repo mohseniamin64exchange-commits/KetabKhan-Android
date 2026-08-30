@@ -174,10 +174,10 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
     private val _draftTranslator = MutableStateFlow("")
     val draftTranslator: StateFlow<String> = _draftTranslator.asStateFlow()
 
-    private val _draftPublisher = MutableStateFlow("نشر آزمایشی")
+    private val _draftPublisher = MutableStateFlow("")
     val draftPublisher: StateFlow<String> = _draftPublisher.asStateFlow()
 
-    private val _draftPublishYear = MutableStateFlow("۱۴۰۳")
+    private val _draftPublishYear = MutableStateFlow("")
     val draftPublishYear: StateFlow<String> = _draftPublishYear.asStateFlow()
 
     private val _draftLanguage = MutableStateFlow("فارسی")
