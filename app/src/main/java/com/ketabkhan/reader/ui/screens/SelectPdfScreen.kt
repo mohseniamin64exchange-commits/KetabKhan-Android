@@ -204,7 +204,7 @@ fun SelectPdfScreen(
 
             // PDF Types Info Cards
             Text(
-                text = "پشتیبانی کامل از ساختارهای PDF",
+                text = "وضعیت روشهای پردازش PDF",
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
                 color = TextPrimary,
@@ -214,7 +214,7 @@ fun SelectPdfScreen(
             PdfTypeInfoCard(
                 icon = Icons.Outlined.TextFields,
                 title = "PDF متنی (Text-based)",
-                description = "استخراج سریع متن، تشخیص ساختار فصل‌ها و فهرست مطالب با سرعت بالا."
+                description = "استخراج متن و تشخیص ساختار در مرحله بعد توسعه داده خواهد شد."
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -222,7 +222,7 @@ fun SelectPdfScreen(
             PdfTypeInfoCard(
                 icon = Icons.Outlined.DocumentScanner,
                 title = "PDF اسکن‌شده (OCR)",
-                description = "تشخیص خودکار و بازخوانی متون اسکن‌شده و عکسی با دقت بالا."
+                description = "قابلیت OCR در نسخه فعلی فعال نیست و در حال توسعه است."
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -230,7 +230,7 @@ fun SelectPdfScreen(
             PdfTypeInfoCard(
                 icon = Icons.Outlined.Layers,
                 title = "PDF ترکیبی (Hybrid)",
-                description = "جداسازی هوشمندانه تصاویر، نمودارها، جداول و پاورقی‌ها از متن اصلی."
+                description = "پردازش تصاویر، جدولها و اجزای ترکیبی در نسخه فعلی فعال نیست."
             )
 
             Spacer(modifier = Modifier.height(24.dp))
