@@ -1,5 +1,7 @@
 package com.ketabkhan.reader.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -30,11 +33,16 @@ fun SelectPdfScreen(
     viewModel: BookReaderViewModel,
     modifier: Modifier = Modifier
 ) {
-    val pdfName by viewModel.selectedPdfName.collectAsState()
-    val pdfSize by viewModel.selectedPdfSize.collectAsState()
-    val pdfPages by viewModel.selectedPdfPages.collectAsState()
+    val context = LocalContext.current
+    val selectedPdfInfo by viewModel.selectedPdfInfo.collectAsState()
 
-    var hasSelectedFile by remember { mutableStateOf(true) }
+    val pdfLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        viewModel.onPdfUriSelected(context, uri)
+    }
+
+    val hasSelectedFile = selectedPdfInfo != null
 
     Scaffold(
         topBar = {
@@ -92,7 +100,9 @@ fun SelectPdfScreen(
                 border = BorderStroke(1.5.dp, if (hasSelectedFile) Primary else Border),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { hasSelectedFile = true }
+                    .clickable {
+                        pdfLauncher.launch(arrayOf("application/pdf"))
+                    }
                     .testTag("pdf_file_drop_zone")
             ) {
                 Column(
@@ -135,7 +145,7 @@ fun SelectPdfScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Selected file preview card
-            if (hasSelectedFile) {
+            selectedPdfInfo?.let { pdfInfo ->
                 Surface(
                     shape = RoundedCornerShape(16.dp),
                     color = Surface,
@@ -163,21 +173,21 @@ fun SelectPdfScreen(
 
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = pdfName,
+                                text = pdfInfo.name,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
                                 color = TextPrimary,
                                 maxLines = 1
                             )
                             Text(
-                                text = "$pdfSize · $pdfPages",
+                                text = "${pdfInfo.formattedSize} · ${pdfInfo.mimeType}",
                                 fontSize = 12.sp,
                                 color = TextSecondary
                             )
                         }
 
                         IconButton(
-                            onClick = { hasSelectedFile = false },
+                            onClick = { viewModel.clearSelectedPdf() },
                             modifier = Modifier.size(36.dp)
                         ) {
                             Icon(

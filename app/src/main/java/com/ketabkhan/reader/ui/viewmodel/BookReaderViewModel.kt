@@ -1,6 +1,9 @@
 package com.ketabkhan.reader.ui.viewmodel
 
 import android.app.Application
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.ketabkhan.reader.data.db.AppDatabase
@@ -10,6 +13,8 @@ import com.ketabkhan.reader.data.repository.BookRepository
 import com.ketabkhan.reader.ui.navigation.Screen
 import com.ketabkhan.reader.util.AppConstants
 import com.ketabkhan.reader.util.BookJsonParser
+import com.ketabkhan.reader.util.PdfValidationResult
+import com.ketabkhan.reader.util.PdfValidator
 import com.ketabkhan.reader.work.WorkManagerHelper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -148,20 +153,22 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
     private var conversionJob: Job? = null
 
     // Selected PDF File info for import/conversion
-    private val _selectedPdfName = MutableStateFlow("sample_document_demo.pdf")
-    val selectedPdfName: StateFlow<String> = _selectedPdfName.asStateFlow()
+    private val _selectedPdfInfo = MutableStateFlow<SelectedPdfInfo?>(null)
+    val selectedPdfInfo: StateFlow<SelectedPdfInfo?> = _selectedPdfInfo.asStateFlow()
 
-    private val _selectedPdfSize = MutableStateFlow("۲.۴ مگابایت")
-    val selectedPdfSize: StateFlow<String> = _selectedPdfSize.asStateFlow()
+    val selectedPdfName: StateFlow<String> = _selectedPdfInfo
+        .map { it?.name ?: "" }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
 
-    private val _selectedPdfPages = MutableStateFlow("۱۲۰ صفحه")
-    val selectedPdfPages: StateFlow<String> = _selectedPdfPages.asStateFlow()
+    val selectedPdfSize: StateFlow<String> = _selectedPdfInfo
+        .map { it?.formattedSize ?: "" }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
 
     // New Book Draft Metadata
-    private val _draftTitle = MutableStateFlow("کتاب نمونه ۱ (آزمایشی)")
+    private val _draftTitle = MutableStateFlow("")
     val draftTitle: StateFlow<String> = _draftTitle.asStateFlow()
 
-    private val _draftAuthor = MutableStateFlow("نویسنده آزمایشی")
+    private val _draftAuthor = MutableStateFlow("")
     val draftAuthor: StateFlow<String> = _draftAuthor.asStateFlow()
 
     private val _draftTranslator = MutableStateFlow("")
@@ -434,6 +441,38 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
             showSnackbar("کتاب از کتابخانه حذف شد (فایل اصلی PDF دست‌نخورده باقی ماند)")
             navigateTo(Screen.Library)
         }
+    }
+
+    // PDF File Selection and Validation
+    fun onPdfUriSelected(context: Context, uri: Uri?) {
+        if (uri == null) {
+            // Selection cancelled by user; retain previous state without error
+            return
+        }
+
+        try {
+            context.contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+        } catch (e: Exception) {
+            // Permission grant may not be supported by some content providers
+        }
+
+        when (val result = PdfValidator.validateAndExtractInfo(context, uri)) {
+            is PdfValidationResult.Success -> {
+                _selectedPdfInfo.value = result.pdfInfo
+                val fileTitle = result.pdfInfo.name.removeSuffix(".pdf").removeSuffix(".PDF")
+                _draftTitle.value = fileTitle
+            }
+            is PdfValidationResult.Error -> {
+                showSnackbar(result.message)
+            }
+        }
+    }
+
+    fun clearSelectedPdf() {
+        _selectedPdfInfo.value = null
     }
 
     // Conversion Process handling
