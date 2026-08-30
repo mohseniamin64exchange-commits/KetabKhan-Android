@@ -64,6 +64,19 @@ class PdfValidatorTest {
     }
 
     @Test
+    fun `validateRawPdfInput returns Error for negative size file`() {
+        val result = PdfValidator.validateRawPdfInput(
+            uriString = "content://media/external/file/3",
+            name = "unknown_size_book.pdf",
+            sizeBytes = -1L,
+            mimeType = "application/pdf"
+        )
+
+        assertTrue(result is PdfValidationResult.Error)
+        assertEquals("فایل انتخاب‌شده خالی است یا حجم آن صفر می‌باشد.", (result as PdfValidationResult.Error).message)
+    }
+
+    @Test
     fun `formatFileSize formats KB and MB correctly with Persian digits`() {
         val formattedKb = PdfValidator.formatFileSize(512000L) // 500 KB
         assertTrue(formattedKb.contains("کیلو"))

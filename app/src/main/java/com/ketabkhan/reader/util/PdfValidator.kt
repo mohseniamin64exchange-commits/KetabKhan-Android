@@ -32,7 +32,7 @@ object PdfValidator {
             return PdfValidationResult.Error("فایل انتخاب‌شده یک فایل PDF معتبر نیست.")
         }
 
-        if (sizeBytes == 0L) {
+        if (sizeBytes <= 0L) {
             return PdfValidationResult.Error("فایل انتخاب‌شده خالی است یا حجم آن صفر می‌باشد.")
         }
 
