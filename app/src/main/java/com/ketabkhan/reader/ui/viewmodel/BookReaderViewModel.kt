@@ -475,6 +475,12 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
         _selectedPdfInfo.value = null
     }
 
+    fun continueToBookDetails() {
+        if (_selectedPdfInfo.value != null) {
+            navigateTo(Screen.BookDetails)
+        }
+    }
+
     // Conversion Process handling
     fun startConversion() {
         _conversionProgress.value = 0f

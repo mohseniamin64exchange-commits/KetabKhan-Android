@@ -61,7 +61,7 @@ fun SelectPdfScreen(
                 Button(
                     onClick = {
                         if (hasSelectedFile) {
-                            viewModel.startConversion()
+                            viewModel.continueToBookDetails()
                         }
                     },
                     enabled = hasSelectedFile,
@@ -73,7 +73,7 @@ fun SelectPdfScreen(
                         .testTag("start_conversion_button")
                 ) {
                     Text(
-                        text = "شروع تبدیل و استخراج ساختار",
+                        text = "ادامه و ثبت اطلاعات کتاب",
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         color = Color.White
