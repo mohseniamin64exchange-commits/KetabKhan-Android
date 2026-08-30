@@ -204,7 +204,7 @@ fun SelectPdfScreen(
 
             // PDF Types Info Cards
             Text(
-                text = "وضعیت روشهای پردازش PDF",
+                text = "وضعیت روش‌های پردازش PDF",
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
                 color = TextPrimary,
@@ -230,7 +230,7 @@ fun SelectPdfScreen(
             PdfTypeInfoCard(
                 icon = Icons.Outlined.Layers,
                 title = "PDF ترکیبی (Hybrid)",
-                description = "پردازش تصاویر، جدولها و اجزای ترکیبی در نسخه فعلی فعال نیست."
+                description = "پردازش تصاویر، جدول‌ها و اجزای ترکیبی در نسخه فعلی فعال نیست."
             )
 
             Spacer(modifier = Modifier.height(24.dp))
