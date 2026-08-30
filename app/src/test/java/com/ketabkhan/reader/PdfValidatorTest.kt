@@ -77,6 +77,34 @@ class PdfValidatorTest {
     }
 
     @Test
+    fun `validateRawPdfInput returns Success with unknown MIME when name has pdf extension`() {
+        val result = PdfValidator.validateRawPdfInput(
+            uriString = "content://media/external/file/4",
+            name = "book.pdf",
+            sizeBytes = 1048576L,
+            mimeType = null
+        )
+
+        assertTrue(result is PdfValidationResult.Success)
+        val success = result as PdfValidationResult.Success
+        assertEquals("book.pdf", success.pdfInfo.name)
+        assertEquals("نامشخص", success.pdfInfo.mimeType)
+    }
+
+    @Test
+    fun `validateRawPdfInput returns Error with unknown MIME when name does not have pdf extension`() {
+        val result = PdfValidator.validateRawPdfInput(
+            uriString = "content://media/external/file/5",
+            name = "book.bin",
+            sizeBytes = 1048576L,
+            mimeType = ""
+        )
+
+        assertTrue(result is PdfValidationResult.Error)
+        assertEquals("فایل انتخاب‌شده یک فایل PDF معتبر نیست.", (result as PdfValidationResult.Error).message)
+    }
+
+    @Test
     fun `formatFileSize formats KB and MB correctly with Persian digits`() {
         val formattedKb = PdfValidator.formatFileSize(512000L) // 500 KB
         assertTrue(formattedKb.contains("کیلو"))

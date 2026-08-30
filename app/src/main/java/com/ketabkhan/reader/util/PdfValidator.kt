@@ -23,9 +23,12 @@ object PdfValidator {
 
         val name = getFileName(contentResolver, uri)
         val sizeBytes = getFileSize(contentResolver, uri)
-        val mimeType = contentResolver.getType(uri) ?: "application/pdf"
+        val rawMimeType = contentResolver.getType(uri)?.trim()
 
-        val isPdfMime = mimeType.equals("application/pdf", ignoreCase = true) || mimeType.equals("application/x-pdf", ignoreCase = true)
+        val isPdfMime = !rawMimeType.isNullOrBlank() && (
+            rawMimeType.equals("application/pdf", ignoreCase = true) || 
+            rawMimeType.equals("application/x-pdf", ignoreCase = true)
+        )
         val isPdfExtension = name.lowercase(Locale.ROOT).endsWith(".pdf")
 
         if (!isPdfMime && !isPdfExtension) {
@@ -47,6 +50,7 @@ object PdfValidator {
         }
 
         val formattedSize = formatFileSize(sizeBytes)
+        val displayMimeType = if (rawMimeType.isNullOrBlank()) "نامشخص" else rawMimeType
 
         return PdfValidationResult.Success(
             SelectedPdfInfo(
@@ -54,7 +58,7 @@ object PdfValidator {
                 name = name,
                 sizeBytes = sizeBytes,
                 formattedSize = formattedSize,
-                mimeType = mimeType
+                mimeType = displayMimeType
             )
         )
     }
@@ -118,8 +122,11 @@ object PdfValidator {
             return PdfValidationResult.Error("فایلی انتخاب نشده است.")
         }
         val safeName = name ?: ""
-        val safeMime = mimeType ?: ""
-        val isPdfMime = safeMime.equals("application/pdf", ignoreCase = true) || safeMime.equals("application/x-pdf", ignoreCase = true)
+        val rawMime = mimeType?.trim()
+        val isPdfMime = !rawMime.isNullOrBlank() && (
+            rawMime.equals("application/pdf", ignoreCase = true) || 
+            rawMime.equals("application/x-pdf", ignoreCase = true)
+        )
         val isPdfExt = safeName.lowercase(Locale.ROOT).endsWith(".pdf")
 
         if (!isPdfMime && !isPdfExt) {
@@ -129,13 +136,15 @@ object PdfValidator {
             return PdfValidationResult.Error("فایل انتخاب‌شده خالی است یا حجم آن صفر می‌باشد.")
         }
 
+        val displayMime = if (rawMime.isNullOrBlank()) "نامشخص" else rawMime
+
         return PdfValidationResult.Success(
             SelectedPdfInfo(
                 uriString = uriString,
                 name = if (safeName.isBlank()) "document.pdf" else safeName,
                 sizeBytes = sizeBytes,
                 formattedSize = formatFileSize(sizeBytes),
-                mimeType = if (safeMime.isBlank()) "application/pdf" else safeMime
+                mimeType = displayMime
             )
         )
     }
