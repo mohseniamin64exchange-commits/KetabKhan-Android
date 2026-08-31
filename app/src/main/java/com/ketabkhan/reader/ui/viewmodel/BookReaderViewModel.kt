@@ -565,7 +565,19 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun cancelConversion() {
+        val currentState = _pdfProcessingState.value
+        if (currentState is PdfProcessingState.Queued || currentState is PdfProcessingState.Running) {
+            val workId = _processingWorkId.value
+            if (workId != null) {
+                WorkManagerHelper.cancelBookProcessing(
+                    context = getApplication<Application>().applicationContext,
+                    workId = workId
+                )
+            }
+            _pdfProcessingState.value = PdfProcessingState.Cancelled
+        }
         conversionJob?.cancel()
+        _processingWorkId.value = null
         goBack()
     }
 
