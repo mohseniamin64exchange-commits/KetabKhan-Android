@@ -16,6 +16,7 @@ import com.ketabkhan.reader.util.AppConstants
 import com.ketabkhan.reader.util.BookJsonParser
 import com.ketabkhan.reader.util.PdfValidationResult
 import com.ketabkhan.reader.util.PdfValidator
+import com.ketabkhan.reader.work.BookProcessingWorker
 import com.ketabkhan.reader.work.WorkManagerHelper
 import androidx.work.WorkInfo
 import java.util.UUID
@@ -523,8 +524,37 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
                         WorkInfo.State.RUNNING -> {
                             _pdfProcessingState.value = PdfProcessingState.Running
                         }
-                        else -> {
-                            // Handled in subsequent steps
+                        WorkInfo.State.SUCCEEDED -> {
+                            val pageCount = workInfo.outputData.getInt(BookProcessingWorker.KEY_PAGE_COUNT, 0)
+                            val textFilePath = workInfo.outputData.getString(BookProcessingWorker.KEY_TEXT_FILE_PATH)
+                            if (!textFilePath.isNullOrBlank()) {
+                                _pdfProcessingState.value = PdfProcessingState.Success(
+                                    pageCount = pageCount,
+                                    textFilePath = textFilePath
+                                )
+                            } else {
+                                _pdfProcessingState.value = PdfProcessingState.Failed("خروجی استخراج متن معتبر نیست")
+                            }
+                        }
+                        WorkInfo.State.FAILED -> {
+                            val resultStatus = workInfo.outputData.getString(BookProcessingWorker.KEY_RESULT_STATUS)
+                            when (resultStatus) {
+                                "no_extractable_text" -> {
+                                    val pageCount = workInfo.outputData.getInt(BookProcessingWorker.KEY_PAGE_COUNT, 0)
+                                    _pdfProcessingState.value = PdfProcessingState.NoExtractableText(pageCount = pageCount)
+                                }
+                                "password_protected" -> {
+                                    _pdfProcessingState.value = PdfProcessingState.PasswordProtected
+                                }
+                                else -> {
+                                    val errorMessage = workInfo.outputData.getString(BookProcessingWorker.KEY_ERROR_MESSAGE)
+                                        ?: "پردازش PDF ناموفق بود"
+                                    _pdfProcessingState.value = PdfProcessingState.Failed(errorMessage)
+                                }
+                            }
+                        }
+                        WorkInfo.State.CANCELLED -> {
+                            _pdfProcessingState.value = PdfProcessingState.Cancelled
                         }
                     }
                 }
