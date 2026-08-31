@@ -28,4 +28,8 @@ object WorkManagerHelper {
     fun observeBookProcessing(context: Context, workId: UUID): kotlinx.coroutines.flow.Flow<WorkInfo?> {
         return WorkManager.getInstance(context).getWorkInfoByIdFlow(workId)
     }
+
+    fun cancelBookProcessing(context: Context, workId: UUID) {
+        WorkManager.getInstance(context).cancelWorkById(workId)
+    }
 }
