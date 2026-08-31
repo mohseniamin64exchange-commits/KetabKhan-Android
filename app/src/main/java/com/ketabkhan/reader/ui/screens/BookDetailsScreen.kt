@@ -68,7 +68,7 @@ fun BookDetailsScreen(
                 Button(
                     onClick = {
                         if (draftTitle.isNotBlank() && draftAuthor.isNotBlank()) {
-                            viewModel.showSnackbar("استخراج و بررسی ساختار PDF در این مرحله هنوز فعال نیست")
+                            viewModel.startConversion()
                         } else {
                             viewModel.showSnackbar("لطفاً عنوان و نویسنده کتاب را وارد کنید")
                         }
