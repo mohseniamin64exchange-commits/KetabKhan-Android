@@ -1,9 +1,12 @@
 package com.ketabkhan.reader.work
 
 import android.content.Context
+import android.net.Uri
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import com.ketabkhan.reader.domain.pdf.PdfExtractResult
+import com.ketabkhan.reader.domain.pdf.PdfTextExtractor
 import java.io.File
 import java.nio.charset.StandardCharsets
 
@@ -37,17 +40,56 @@ class BookProcessingWorker(
     }
 
     override suspend fun doWork(): Result {
-        val fileUri = inputData.getString(KEY_FILE_URI) ?: return Result.failure(
+        val fileUriString = inputData.getString(KEY_FILE_URI) ?: return Result.failure(
             workDataOf(KEY_ERROR_MESSAGE to "مسیر فایل نامعتبر است")
         )
 
-        // Architecture prepared for background PDF/Book processing in Phase 2.
-        // Returns failure/pending notice because processing engine is not yet implemented.
-        return Result.failure(
-            workDataOf(
-                KEY_RESULT_STATUS to "in_development",
-                KEY_ERROR_MESSAGE to "موتور پردازش در این مرحله هنوز فعال نشده است"
+        val uri = try {
+            Uri.parse(fileUriString)
+        } catch (e: Exception) {
+            return Result.failure(
+                workDataOf(
+                    KEY_RESULT_STATUS to "failed",
+                    KEY_ERROR_MESSAGE to "فرمت شناسه فایل نامعتبر است"
+                )
             )
-        )
+        }
+
+        val extractor = PdfTextExtractor()
+        return when (val extractResult = extractor.extractText(applicationContext, uri)) {
+            is PdfExtractResult.Success -> {
+                val savedFilePath = saveExtractedText(extractResult.extractedText)
+                Result.success(
+                    workDataOf(
+                        KEY_RESULT_STATUS to "success",
+                        KEY_PAGE_COUNT to extractResult.pageCount,
+                        KEY_TEXT_FILE_PATH to savedFilePath
+                    )
+                )
+            }
+            is PdfExtractResult.NoExtractableText -> {
+                Result.failure(
+                    workDataOf(
+                        KEY_RESULT_STATUS to "no_extractable_text",
+                        KEY_PAGE_COUNT to extractResult.pageCount
+                    )
+                )
+            }
+            is PdfExtractResult.PasswordProtected -> {
+                Result.failure(
+                    workDataOf(
+                        KEY_RESULT_STATUS to "password_protected"
+                    )
+                )
+            }
+            is PdfExtractResult.Failure -> {
+                Result.failure(
+                    workDataOf(
+                        KEY_RESULT_STATUS to "failed",
+                        KEY_ERROR_MESSAGE to extractResult.message
+                    )
+                )
+            }
+        }
     }
 }
