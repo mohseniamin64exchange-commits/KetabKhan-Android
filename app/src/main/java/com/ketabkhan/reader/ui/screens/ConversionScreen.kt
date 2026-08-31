@@ -1,28 +1,28 @@
 package com.ketabkhan.reader.ui.screens
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ketabkhan.reader.ui.components.AppTopBar
-import com.ketabkhan.reader.ui.navigation.Screen
+import com.ketabkhan.reader.ui.state.PdfProcessingState
 import com.ketabkhan.reader.ui.theme.*
 import com.ketabkhan.reader.ui.viewmodel.BookReaderViewModel
 
@@ -31,13 +31,16 @@ fun ConversionScreen(
     viewModel: BookReaderViewModel,
     modifier: Modifier = Modifier
 ) {
-    val stages by viewModel.conversionStages.collectAsState()
+    val processingState by viewModel.pdfProcessingState.collectAsState()
+
+    val isOngoing = processingState is PdfProcessingState.Queued || processingState is PdfProcessingState.Running
+    val buttonText = if (isOngoing) "لغو پردازش" else "بازگشت"
 
     Scaffold(
         topBar = {
             AppTopBar(
                 title = "تبدیل فایل PDF",
-                subtitle = "زیرساخت پردازش پس‌زمینه",
+                subtitle = "پردازش و استخراج متن",
                 onBack = { viewModel.cancelConversion() }
             )
         },
@@ -55,7 +58,11 @@ fun ConversionScreen(
                         .fillMaxWidth()
                         .height(48.dp)
                 ) {
-                    Text("بازگشت به کتابخانه", color = Primary, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text = buttonText,
+                        color = if (isOngoing) StatusError else Primary,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
         },
@@ -67,11 +74,11 @@ fun ConversionScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Notice Card
             Surface(
                 shape = RoundedCornerShape(20.dp),
                 color = Surface,
@@ -79,95 +86,190 @@ fun ConversionScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier.padding(20.dp),
+                    modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.Info,
-                        contentDescription = null,
-                        tint = Primary,
-                        modifier = Modifier.size(36.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text(
-                        text = "موتور تبدیل PDF در حال توسعه است",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp,
-                        color = TextPrimary
-                    )
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    Text(
-                        text = "زیرساخت معماری WorkManager آماده شده است. در فاز بعدی موتور بومی استخراج متن، شناسایی فصول و تولید بسته .bookapp فعال خواهد شد.",
-                        fontSize = 12.sp,
-                        color = TextSecondary,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                        lineHeight = 18.sp
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Stages list card
-            Text(
-                text = "مراحل معماری تبدیل کتاب",
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
-                color = TextPrimary,
-                modifier = Modifier.padding(bottom = 10.dp)
-            )
-
-            Surface(
-                shape = RoundedCornerShape(18.dp),
-                color = Surface,
-                border = BorderStroke(1.dp, Border),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier.padding(vertical = 8.dp)
-                ) {
-                    stages.forEachIndexed { index, stage ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(14.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(28.dp)
-                                    .background(
-                                        if (stage.isCurrent) SecondarySurface else Background,
-                                        CircleShape
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "${index + 1}",
-                                    fontSize = 12.sp,
-                                    color = if (stage.isCurrent) Primary else TextSecondary,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-
+                    when (val state = processingState) {
+                        is PdfProcessingState.Idle -> {
+                            Icon(
+                                imageVector = Icons.Filled.Info,
+                                contentDescription = null,
+                                tint = TextSecondary,
+                                modifier = Modifier.size(40.dp)
+                            )
+                            Spacer(modifier = Modifier.height(14.dp))
                             Text(
-                                text = stage.name,
+                                text = "پردازشی آغاز نشده است",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = TextPrimary
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "برای شروع پردازش، ابتدا فایلی را از بخش افزودن کتاب انتخاب کنید.",
                                 fontSize = 13.sp,
-                                fontWeight = if (stage.isCurrent) FontWeight.Bold else FontWeight.Normal,
-                                color = if (stage.isCurrent) TextPrimary else TextSecondary,
-                                modifier = Modifier.weight(1f)
+                                color = TextSecondary,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 20.sp
                             )
                         }
-
-                        if (index < stages.size - 1) {
-                            HorizontalDivider(
-                                color = Border.copy(alpha = 0.5f),
-                                modifier = Modifier.padding(horizontal = 16.dp)
+                        is PdfProcessingState.Queued -> {
+                            CircularProgressIndicator(
+                                color = Primary,
+                                strokeWidth = 3.dp,
+                                modifier = Modifier.size(40.dp)
+                            )
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Text(
+                                text = "فایل در صف پردازش است",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = TextPrimary
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "سرویس پردازش پس‌زمینه در حال آماده‌سازی برای خواندن فایل PDF است...",
+                                fontSize = 13.sp,
+                                color = TextSecondary,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 20.sp
+                            )
+                        }
+                        is PdfProcessingState.Running -> {
+                            CircularProgressIndicator(
+                                color = Primary,
+                                strokeWidth = 3.dp,
+                                modifier = Modifier.size(40.dp)
+                            )
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Text(
+                                text = "در حال استخراج متن PDF",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = TextPrimary
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "صفحات سند PDF در حال خواندن و استخراج مستقیم متون هستند...",
+                                fontSize = 13.sp,
+                                color = TextSecondary,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 20.sp
+                            )
+                        }
+                        is PdfProcessingState.Success -> {
+                            Icon(
+                                imageVector = Icons.Filled.CheckCircle,
+                                contentDescription = null,
+                                tint = StatusSuccess,
+                                modifier = Modifier.size(44.dp)
+                            )
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Text(
+                                text = "استخراج متن با موفقیت انجام شد",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = TextPrimary
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "تعداد کل صفحات پردازش‌شده: ${state.pageCount} صفحه",
+                                fontSize = 13.sp,
+                                color = TextSecondary,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 20.sp
+                            )
+                        }
+                        is PdfProcessingState.NoExtractableText -> {
+                            Icon(
+                                imageVector = Icons.Filled.Warning,
+                                contentDescription = null,
+                                tint = StatusWarning,
+                                modifier = Modifier.size(44.dp)
+                            )
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Text(
+                                text = "متن قابل استخراج یافت نشد",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = TextPrimary
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "این فایل (با ${state.pageCount} صفحه) فاقد لایه متنی است (تصویری/اسکن‌شده). در حال حاضر قابلیت نویسه‌خوان نوری (OCR) هنوز فعال نیست.",
+                                fontSize = 13.sp,
+                                color = TextSecondary,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 20.sp
+                            )
+                        }
+                        is PdfProcessingState.PasswordProtected -> {
+                            Icon(
+                                imageVector = Icons.Filled.Lock,
+                                contentDescription = null,
+                                tint = StatusError,
+                                modifier = Modifier.size(44.dp)
+                            )
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Text(
+                                text = "فایل PDF رمزگذاری شده است",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = TextPrimary
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "امکان استخراج محتوای فایل‌های رمزگذاری‌شده بدون گذرواژه وجود ندارد.",
+                                fontSize = 13.sp,
+                                color = TextSecondary,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 20.sp
+                            )
+                        }
+                        is PdfProcessingState.Failed -> {
+                            Icon(
+                                imageVector = Icons.Filled.Error,
+                                contentDescription = null,
+                                tint = StatusError,
+                                modifier = Modifier.size(44.dp)
+                            )
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Text(
+                                text = "پردازش PDF ناموفق بود",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = TextPrimary
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = state.message,
+                                fontSize = 13.sp,
+                                color = TextSecondary,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 20.sp
+                            )
+                        }
+                        is PdfProcessingState.Cancelled -> {
+                            Icon(
+                                imageVector = Icons.Filled.Cancel,
+                                contentDescription = null,
+                                tint = TextSecondary,
+                                modifier = Modifier.size(44.dp)
+                            )
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Text(
+                                text = "پردازش لغو شد",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = TextPrimary
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "عملیات استخراج متن توسط کاربر لغو گردید.",
+                                fontSize = 13.sp,
+                                color = TextSecondary,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 20.sp
                             )
                         }
                     }
