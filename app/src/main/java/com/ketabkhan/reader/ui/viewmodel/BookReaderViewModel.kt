@@ -11,6 +11,7 @@ import com.ketabkhan.reader.data.model.*
 import com.ketabkhan.reader.data.preferences.ReaderPreferencesRepository
 import com.ketabkhan.reader.data.repository.BookRepository
 import com.ketabkhan.reader.ui.navigation.Screen
+import com.ketabkhan.reader.ui.state.PdfProcessingState
 import com.ketabkhan.reader.util.AppConstants
 import com.ketabkhan.reader.util.BookJsonParser
 import com.ketabkhan.reader.util.PdfValidationResult
@@ -153,6 +154,9 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
 
     private val _processingWorkId = MutableStateFlow<UUID?>(null)
     val processingWorkId: StateFlow<UUID?> = _processingWorkId.asStateFlow()
+
+    private val _pdfProcessingState = MutableStateFlow<PdfProcessingState>(PdfProcessingState.Idle)
+    val pdfProcessingState: StateFlow<PdfProcessingState> = _pdfProcessingState.asStateFlow()
 
     private var conversionJob: Job? = null
 
@@ -502,6 +506,7 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
             fileUri = pdfInfo.uriString
         )
         _processingWorkId.value = workId
+        _pdfProcessingState.value = PdfProcessingState.Queued
 
         navigateTo(Screen.Conversion)
     }
