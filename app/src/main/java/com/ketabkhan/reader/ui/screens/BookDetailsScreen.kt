@@ -23,7 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ketabkhan.reader.ui.components.AppTopBar
-import com.ketabkhan.reader.ui.navigation.Screen
 import com.ketabkhan.reader.ui.theme.*
 import com.ketabkhan.reader.ui.viewmodel.BookReaderViewModel
 
@@ -69,7 +68,7 @@ fun BookDetailsScreen(
                 Button(
                     onClick = {
                         if (draftTitle.isNotBlank() && draftAuthor.isNotBlank()) {
-                            viewModel.navigateTo(Screen.StructureReview)
+                            viewModel.showSnackbar("استخراج و بررسی ساختار PDF در این مرحله هنوز فعال نیست")
                         } else {
                             viewModel.showSnackbar("لطفاً عنوان و نویسنده کتاب را وارد کنید")
                         }
@@ -81,7 +80,7 @@ fun BookDetailsScreen(
                         .height(52.dp)
                         .testTag("continue_to_structure_button")
                 ) {
-                    Text("ادامه به بررسی ساختار", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
+                    Text("استخراج و بررسی ساختار", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
                 }
             }
         },
