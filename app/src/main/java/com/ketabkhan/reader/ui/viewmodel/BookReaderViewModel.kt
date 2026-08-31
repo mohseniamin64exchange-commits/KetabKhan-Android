@@ -17,6 +17,7 @@ import com.ketabkhan.reader.util.BookJsonParser
 import com.ketabkhan.reader.util.PdfValidationResult
 import com.ketabkhan.reader.util.PdfValidator
 import com.ketabkhan.reader.work.WorkManagerHelper
+import androidx.work.WorkInfo
 import java.util.UUID
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -507,6 +508,28 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
         )
         _processingWorkId.value = workId
         _pdfProcessingState.value = PdfProcessingState.Queued
+
+        conversionJob?.cancel()
+        conversionJob = viewModelScope.launch {
+            WorkManagerHelper.observeBookProcessing(
+                context = getApplication<Application>().applicationContext,
+                workId = workId
+            ).collect { workInfo ->
+                if (workInfo != null) {
+                    when (workInfo.state) {
+                        WorkInfo.State.ENQUEUED, WorkInfo.State.BLOCKED -> {
+                            _pdfProcessingState.value = PdfProcessingState.Queued
+                        }
+                        WorkInfo.State.RUNNING -> {
+                            _pdfProcessingState.value = PdfProcessingState.Running
+                        }
+                        else -> {
+                            // Handled in subsequent steps
+                        }
+                    }
+                }
+            }
+        }
 
         navigateTo(Screen.Conversion)
     }
