@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import java.io.File
+import java.nio.charset.StandardCharsets
 
 /**
  * WorkManager worker for handling long-running background document conversion and processing tasks.
@@ -19,6 +21,19 @@ class BookProcessingWorker(
         const val KEY_OUTPUT_NAME = "key_output_name"
         const val KEY_RESULT_STATUS = "key_result_status"
         const val KEY_ERROR_MESSAGE = "key_error_message"
+        const val KEY_PAGE_COUNT = "key_page_count"
+        const val KEY_TEXT_FILE_PATH = "key_text_file_path"
+    }
+
+    private fun saveExtractedText(text: String): String {
+        val processingDir = File(applicationContext.filesDir, "pdf_processing").apply {
+            if (!exists()) {
+                mkdirs()
+            }
+        }
+        val targetFile = File(processingDir, "$id.txt")
+        targetFile.writeText(text, StandardCharsets.UTF_8)
+        return targetFile.absolutePath
     }
 
     override suspend fun doWork(): Result {
