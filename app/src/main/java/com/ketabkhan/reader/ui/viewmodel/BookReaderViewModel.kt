@@ -16,6 +16,7 @@ import com.ketabkhan.reader.util.BookJsonParser
 import com.ketabkhan.reader.util.PdfValidationResult
 import com.ketabkhan.reader.util.PdfValidator
 import com.ketabkhan.reader.work.WorkManagerHelper
+import java.util.UUID
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -149,6 +150,9 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
 
     private val _conversionCompleted = MutableStateFlow(false)
     val conversionCompleted: StateFlow<Boolean> = _conversionCompleted.asStateFlow()
+
+    private val _processingWorkId = MutableStateFlow<UUID?>(null)
+    val processingWorkId: StateFlow<UUID?> = _processingWorkId.asStateFlow()
 
     private var conversionJob: Job? = null
 
@@ -483,15 +487,22 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
 
     // Conversion Process handling
     fun startConversion() {
+        val pdfInfo = _selectedPdfInfo.value
+        if (pdfInfo == null) {
+            showSnackbar("ابتدا یک فایل PDF معتبر انتخاب کنید")
+            return
+        }
+
         _conversionProgress.value = 0f
         _conversionCompleted.value = false
-        _conversionStages.value = listOf(
-            ConversionStage("معماری WorkManager آماده است", isCurrent = true, isComplete = false),
-            ConversionStage("استخراج ساختار و متون PDF (${AppConstants.STATUS_IN_DEVELOPMENT})"),
-            ConversionStage("تشخیص هوشمند عناوین و پاورقی‌ها (${AppConstants.STATUS_IN_DEVELOPMENT})"),
-            ConversionStage("آماده‌سازی پیش‌نمایش و داده‌ها (${AppConstants.STATUS_IN_DEVELOPMENT})")
+        _conversionStages.value = emptyList()
+
+        val workId = WorkManagerHelper.scheduleBookProcessing(
+            context = getApplication<Application>().applicationContext,
+            fileUri = pdfInfo.uriString
         )
-        
+        _processingWorkId.value = workId
+
         navigateTo(Screen.Conversion)
     }
 
