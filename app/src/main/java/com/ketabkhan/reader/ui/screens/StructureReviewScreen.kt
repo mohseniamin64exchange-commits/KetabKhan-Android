@@ -2,14 +2,11 @@ package com.ketabkhan.reader.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,22 +17,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ketabkhan.reader.data.model.Chapter
 import com.ketabkhan.reader.ui.components.AppTopBar
 import com.ketabkhan.reader.ui.navigation.Screen
 import com.ketabkhan.reader.ui.theme.*
 import com.ketabkhan.reader.ui.viewmodel.BookReaderViewModel
-
-val SAMPLE_STRUCTURE_CHAPTERS = listOf(
-    Chapter(id = "1", title = "فصل اول: آشنایی با موضوع و مفاهیم", level = 0, confident = true, content = ""),
-    Chapter(id = "2", title = "۱ـ۱ پیشینه تاریخی و اجتماعی", level = 1, confident = true, content = ""),
-    Chapter(id = "3", title = "۱ـ۲ کاربردها (عنوان نامشخص)", level = 1, confident = false, content = ""),
-    Chapter(id = "4", title = "فصل دوم: زمینه‌های تاریخی و جریان‌ها", level = 0, confident = true, content = ""),
-    Chapter(id = "5", title = "۲ـ۱ تأثیر جنگ بر بافت شهری", level = 1, confident = true, content = ""),
-    Chapter(id = "6", title = "۲ـ۲ تحولات ادبی دوره پهلوی", level = 1, confident = true, content = ""),
-    Chapter(id = "7", title = "فصل سوم: شخصیت‌پردازی و تحلیل نمادها", level = 0, confident = false, content = ""),
-    Chapter(id = "8", title = "فصل چهارم: بازتاب جامعه در رمان", level = 0, confident = true, content = "")
-)
 
 @Composable
 fun StructureReviewScreen(
@@ -90,7 +75,9 @@ fun StructureReviewScreen(
                     }
 
                     Button(
-                        onClick = { viewModel.navigateTo(Screen.FinalPreview) },
+                        onClick = {
+                            viewModel.showSnackbar("پیش‌نمایش کتاب تا زمان استخراج واقعی ساختار فعال نیست")
+                        },
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Primary),
                         modifier = Modifier
@@ -134,7 +121,7 @@ fun StructureReviewScreen(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "۸",
+                            text = "۰",
                             fontWeight = FontWeight.Bold,
                             fontSize = 22.sp,
                             color = Primary
@@ -186,97 +173,25 @@ fun StructureReviewScreen(
                 border = BorderStroke(1.dp, Border),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                    SAMPLE_STRUCTURE_CHAPTERS.forEachIndexed { index, ch ->
-                        val isIndented = ch.level > 0
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    start = if (isIndented) 32.dp else 16.dp,
-                                    end = 16.dp,
-                                    top = 10.dp,
-                                    bottom = 10.dp
-                                ),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            if (isIndented) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(6.dp)
-                                        .background(Primary, CircleShape)
-                                )
-                            }
-
-                            Text(
-                                text = ch.title,
-                                fontSize = if (isIndented) 13.sp else 14.sp,
-                                fontWeight = if (isIndented) FontWeight.Normal else FontWeight.Bold,
-                                color = TextPrimary,
-                                modifier = Modifier.weight(1f)
-                            )
-
-                            if (ch.confident) {
-                                Surface(
-                                    shape = RoundedCornerShape(6.dp),
-                                    color = SuccessBackground
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Check,
-                                            contentDescription = null,
-                                            tint = StatusSuccess,
-                                            modifier = Modifier.size(12.dp)
-                                        )
-                                        Text(
-                                            text = "مطمئن",
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = StatusSuccess
-                                        )
-                                    }
-                                }
-                            } else {
-                                Surface(
-                                    shape = RoundedCornerShape(6.dp),
-                                    color = Color(0xFFFEF5E7),
-                                    modifier = Modifier.clickable { viewModel.navigateTo(Screen.IssueReview) }
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Outlined.Warning,
-                                            contentDescription = null,
-                                            tint = StatusWarning,
-                                            modifier = Modifier.size(12.dp)
-                                        )
-                                        Text(
-                                            text = "نیاز به بررسی",
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = StatusWarning
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        if (index < SAMPLE_STRUCTURE_CHAPTERS.size - 1) {
-                            HorizontalDivider(
-                                color = Border.copy(alpha = 0.5f),
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            )
-                        }
-                    }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "هنوز ساختاری از PDF استخراج نشده است",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        color = TextPrimary
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "استخراج متن و شناسایی فصل‌ها در حال توسعه است.",
+                        fontSize = 13.sp,
+                        color = TextSecondary
+                    )
                 }
             }
 
