@@ -24,4 +24,8 @@ object WorkManagerHelper {
         WorkManager.getInstance(context).enqueue(request)
         return request.id
     }
+
+    fun observeBookProcessing(context: Context, workId: UUID): kotlinx.coroutines.flow.Flow<WorkInfo?> {
+        return WorkManager.getInstance(context).getWorkInfoByIdFlow(workId)
+    }
 }
