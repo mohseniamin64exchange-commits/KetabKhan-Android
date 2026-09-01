@@ -28,7 +28,9 @@ fun StructureReviewScreen(
     modifier: Modifier = Modifier
 ) {
     val reviewIssues by viewModel.reviewIssues.collectAsState()
+    val detectedStructure by viewModel.detectedStructure.collectAsState()
     val unresolvedCount = reviewIssues.count { !it.isResolved }
+    val chapterCount = detectedStructure?.chapters?.size ?: 0
 
     Scaffold(
         topBar = {
@@ -121,7 +123,7 @@ fun StructureReviewScreen(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "۰",
+                            text = "$chapterCount",
                             fontWeight = FontWeight.Bold,
                             fontSize = 22.sp,
                             color = Primary
@@ -173,25 +175,95 @@ fun StructureReviewScreen(
                 border = BorderStroke(1.dp, Border),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "هنوز ساختاری از PDF استخراج نشده است",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp,
-                        color = TextPrimary
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = "استخراج متن و شناسایی فصل‌ها در حال توسعه است.",
-                        fontSize = 13.sp,
-                        color = TextSecondary
-                    )
+                val structure = detectedStructure
+                if (structure == null) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "هنوز ساختاری از PDF استخراج نشده است",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            color = TextPrimary
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "استخراج متن و شناسایی فصل‌ها در حال توسعه است.",
+                            fontSize = 13.sp,
+                            color = TextSecondary
+                        )
+                    }
+                } else if (structure.chapters.isEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "عنوان فصلی شناسایی نشد",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            color = TextPrimary
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "متن PDF استخراج شده است، اما عنوان فصل مشخصی در آن تشخیص داده نشد.",
+                            fontSize = 13.sp,
+                            color = TextSecondary,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                    }
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    ) {
+                        structure.chapters.forEachIndexed { index, chapter ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(14.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .background(SecondarySurface, androidx.compose.foundation.shape.CircleShape),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "${index + 1}",
+                                        fontSize = 12.sp,
+                                        color = Primary,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+
+                                Text(
+                                    text = chapter.title,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = TextPrimary,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+
+                            if (index < structure.chapters.size - 1) {
+                                HorizontalDivider(
+                                    color = Border.copy(alpha = 0.5f),
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
