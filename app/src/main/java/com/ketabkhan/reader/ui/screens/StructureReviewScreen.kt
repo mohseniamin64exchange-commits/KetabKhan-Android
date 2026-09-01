@@ -7,6 +7,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ArrowDownward
+import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.*
@@ -233,9 +235,9 @@ fun StructureReviewScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                    .padding(horizontal = 16.dp, vertical = 10.dp),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(14.dp)
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
                                 Box(
                                     modifier = Modifier
@@ -259,21 +261,56 @@ fun StructureReviewScreen(
                                     modifier = Modifier.weight(1f)
                                 )
 
-                                IconButton(
-                                    onClick = {
-                                        editingChapterIndex = index
-                                        editingChapterTitle = chapter.title
-                                    },
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .testTag("edit_chapter_${index + 1}")
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Edit,
-                                        contentDescription = "ویرایش عنوان فصل",
-                                        tint = TextSecondary,
-                                        modifier = Modifier.size(18.dp)
-                                    )
+                                    IconButton(
+                                        onClick = { viewModel.moveDetectedChapterUp(index) },
+                                        enabled = index > 0,
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .testTag("move_up_chapter_${index + 1}")
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.ArrowUpward,
+                                            contentDescription = "انتقال فصل به بالا",
+                                            tint = if (index > 0) TextSecondary else TextSecondary.copy(alpha = 0.3f),
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+
+                                    IconButton(
+                                        onClick = { viewModel.moveDetectedChapterDown(index) },
+                                        enabled = index < structure.chapters.lastIndex,
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .testTag("move_down_chapter_${index + 1}")
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.ArrowDownward,
+                                            contentDescription = "انتقال فصل به پایین",
+                                            tint = if (index < structure.chapters.lastIndex) TextSecondary else TextSecondary.copy(alpha = 0.3f),
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+
+                                    IconButton(
+                                        onClick = {
+                                            editingChapterIndex = index
+                                            editingChapterTitle = chapter.title
+                                        },
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .testTag("edit_chapter_${index + 1}")
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Edit,
+                                            contentDescription = "ویرایش عنوان فصل",
+                                            tint = TextSecondary,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
                                 }
                             }
 

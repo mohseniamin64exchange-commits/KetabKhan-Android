@@ -635,6 +635,26 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
         _detectedStructure.value = structure.copy(chapters = updatedChapters)
     }
 
+    fun moveDetectedChapterUp(index: Int) {
+        val structure = _detectedStructure.value ?: return
+        if (index !in structure.chapters.indices || index == 0) return
+
+        val updatedChapters = structure.chapters.toMutableList()
+        val chapterToMove = updatedChapters.removeAt(index)
+        updatedChapters.add(index - 1, chapterToMove)
+        _detectedStructure.value = structure.copy(chapters = updatedChapters)
+    }
+
+    fun moveDetectedChapterDown(index: Int) {
+        val structure = _detectedStructure.value ?: return
+        if (index !in structure.chapters.indices || index == structure.chapters.lastIndex) return
+
+        val updatedChapters = structure.chapters.toMutableList()
+        val chapterToMove = updatedChapters.removeAt(index)
+        updatedChapters.add(index + 1, chapterToMove)
+        _detectedStructure.value = structure.copy(chapters = updatedChapters)
+    }
+
     // Draft Metadata Editor
     fun setDraftMetadata(
         title: String,
