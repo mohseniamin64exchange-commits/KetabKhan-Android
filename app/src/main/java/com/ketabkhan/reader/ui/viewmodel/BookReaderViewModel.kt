@@ -619,6 +619,22 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    fun updateDetectedChapterTitle(index: Int, newTitle: String) {
+        val structure = _detectedStructure.value ?: return
+        if (index !in structure.chapters.indices) return
+
+        val trimmedTitle = newTitle.trim()
+        if (trimmedTitle.isBlank()) {
+            showSnackbar("عنوان فصل نمی‌تواند خالی باشد")
+            return
+        }
+
+        val updatedChapters = structure.chapters.toMutableList()
+        val currentChapter = updatedChapters[index]
+        updatedChapters[index] = currentChapter.copy(title = trimmedTitle)
+        _detectedStructure.value = structure.copy(chapters = updatedChapters)
+    }
+
     // Draft Metadata Editor
     fun setDraftMetadata(
         title: String,

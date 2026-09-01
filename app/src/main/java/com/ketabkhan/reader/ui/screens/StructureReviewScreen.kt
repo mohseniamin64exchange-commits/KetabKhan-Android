@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -31,6 +32,9 @@ fun StructureReviewScreen(
     val detectedStructure by viewModel.detectedStructure.collectAsState()
     val unresolvedCount = reviewIssues.count { !it.isResolved }
     val chapterCount = detectedStructure?.chapters?.size ?: 0
+
+    var editingChapterIndex by remember { mutableStateOf<Int?>(null) }
+    var editingChapterTitle by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -254,6 +258,23 @@ fun StructureReviewScreen(
                                     color = TextPrimary,
                                     modifier = Modifier.weight(1f)
                                 )
+
+                                IconButton(
+                                    onClick = {
+                                        editingChapterIndex = index
+                                        editingChapterTitle = chapter.title
+                                    },
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .testTag("edit_chapter_${index + 1}")
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Edit,
+                                        contentDescription = "ویرایش عنوان فصل",
+                                        tint = TextSecondary,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
                             }
 
                             if (index < structure.chapters.size - 1) {
@@ -268,6 +289,69 @@ fun StructureReviewScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        if (editingChapterIndex != null) {
+            AlertDialog(
+                onDismissRequest = { editingChapterIndex = null },
+                title = {
+                    Text(
+                        text = "ویرایش عنوان فصل",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = TextPrimary
+                    )
+                },
+                text = {
+                    OutlinedTextField(
+                        value = editingChapterTitle,
+                        onValueChange = { editingChapterTitle = it },
+                        label = { Text("عنوان فصل") },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("chapter_title_input")
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            val idx = editingChapterIndex ?: return@Button
+                            val trimmed = editingChapterTitle.trim()
+                            if (trimmed.isNotBlank()) {
+                                viewModel.updateDetectedChapterTitle(idx, trimmed)
+                                editingChapterIndex = null
+                            } else {
+                                viewModel.updateDetectedChapterTitle(idx, "")
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.testTag("save_chapter_title_button")
+                    ) {
+                        Text(
+                            text = "ذخیره عنوان",
+                            color = Color.White,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { editingChapterIndex = null },
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.testTag("cancel_edit_chapter_button")
+                    ) {
+                        Text(
+                            text = "انصراف",
+                            color = TextSecondary,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                },
+                containerColor = Surface,
+                shape = RoundedCornerShape(18.dp)
+            )
         }
     }
 }
