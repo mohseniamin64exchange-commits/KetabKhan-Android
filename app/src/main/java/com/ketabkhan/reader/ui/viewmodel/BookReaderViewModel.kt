@@ -557,8 +557,7 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
                                     }
                                 } catch (e: Exception) {
                                     _detectedStructure.value = null
-                                    val errorDetail = e.localizedMessage?.let { ": $it" } ?: ""
-                                    _pdfProcessingState.value = PdfProcessingState.Failed("خطا در خواندن فایل متنی استخراج‌شده$errorDetail")
+                                    _pdfProcessingState.value = PdfProcessingState.Failed("خطا در خواندن فایل متنی استخراج‌شده")
                                 }
                             } else {
                                 _detectedStructure.value = null
