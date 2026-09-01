@@ -33,9 +33,6 @@ fun ConversionScreen(
 ) {
     val processingState by viewModel.pdfProcessingState.collectAsState()
 
-    val isOngoing = processingState is PdfProcessingState.Queued || processingState is PdfProcessingState.Running
-    val buttonText = if (isOngoing) "لغو پردازش" else "بازگشت"
-
     Scaffold(
         topBar = {
             AppTopBar(
@@ -51,18 +48,53 @@ fun ConversionScreen(
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                OutlinedButton(
-                    onClick = { viewModel.cancelConversion() },
-                    shape = RoundedCornerShape(14.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                ) {
-                    Text(
-                        text = buttonText,
-                        color = if (isOngoing) StatusError else Primary,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                when (processingState) {
+                    is PdfProcessingState.Success -> {
+                        Button(
+                            onClick = { viewModel.continueToStructureReview() },
+                            shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                        ) {
+                            Text(
+                                text = "بررسی ساختار استخراج‌شده",
+                                color = androidx.compose.ui.graphics.Color.White,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                    is PdfProcessingState.Queued, is PdfProcessingState.Running -> {
+                        OutlinedButton(
+                            onClick = { viewModel.cancelConversion() },
+                            shape = RoundedCornerShape(14.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                        ) {
+                            Text(
+                                text = "لغو پردازش",
+                                color = StatusError,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                    else -> {
+                        OutlinedButton(
+                            onClick = { viewModel.cancelConversion() },
+                            shape = RoundedCornerShape(14.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                        ) {
+                            Text(
+                                text = "بازگشت",
+                                color = Primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
                 }
             }
         },
