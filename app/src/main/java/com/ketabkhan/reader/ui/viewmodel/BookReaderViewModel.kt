@@ -19,11 +19,16 @@ import com.ketabkhan.reader.util.PdfValidator
 import com.ketabkhan.reader.work.BookProcessingWorker
 import com.ketabkhan.reader.work.WorkManagerHelper
 import androidx.work.WorkInfo
+import com.ketabkhan.reader.domain.chapter.ChapterSplitResult
+import com.ketabkhan.reader.domain.chapter.ChapterTextSplitter
+import java.io.File
 import java.util.UUID
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 enum class MainTab {
     LIBRARY,
@@ -159,6 +164,11 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
 
     private val _pdfProcessingState = MutableStateFlow<PdfProcessingState>(PdfProcessingState.Idle)
     val pdfProcessingState: StateFlow<PdfProcessingState> = _pdfProcessingState.asStateFlow()
+
+    private val chapterTextSplitter = ChapterTextSplitter()
+
+    private val _detectedStructure = MutableStateFlow<ChapterSplitResult?>(null)
+    val detectedStructure: StateFlow<ChapterSplitResult?> = _detectedStructure.asStateFlow()
 
     private var conversionJob: Job? = null
 
@@ -502,6 +512,7 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
         _conversionProgress.value = 0f
         _conversionCompleted.value = false
         _conversionStages.value = emptyList()
+        _detectedStructure.value = null
 
         val workId = WorkManagerHelper.scheduleBookProcessing(
             context = getApplication<Application>().applicationContext,
@@ -528,11 +539,29 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
                             val pageCount = workInfo.outputData.getInt(BookProcessingWorker.KEY_PAGE_COUNT, 0)
                             val textFilePath = workInfo.outputData.getString(BookProcessingWorker.KEY_TEXT_FILE_PATH)
                             if (!textFilePath.isNullOrBlank()) {
-                                _pdfProcessingState.value = PdfProcessingState.Success(
-                                    pageCount = pageCount,
-                                    textFilePath = textFilePath
-                                )
+                                try {
+                                    val file = File(textFilePath)
+                                    if (file.exists() && file.isFile) {
+                                        val rawText = withContext(Dispatchers.IO) {
+                                            file.readText(Charsets.UTF_8)
+                                        }
+                                        val splitResult = chapterTextSplitter.splitText(rawText)
+                                        _detectedStructure.value = splitResult
+                                        _pdfProcessingState.value = PdfProcessingState.Success(
+                                            pageCount = pageCount,
+                                            textFilePath = textFilePath
+                                        )
+                                    } else {
+                                        _detectedStructure.value = null
+                                        _pdfProcessingState.value = PdfProcessingState.Failed("فایل متنی استخراج‌شده یافت نشد")
+                                    }
+                                } catch (e: Exception) {
+                                    _detectedStructure.value = null
+                                    val errorDetail = e.localizedMessage?.let { ": $it" } ?: ""
+                                    _pdfProcessingState.value = PdfProcessingState.Failed("خطا در خواندن فایل متنی استخراج‌شده$errorDetail")
+                                }
                             } else {
+                                _detectedStructure.value = null
                                 _pdfProcessingState.value = PdfProcessingState.Failed("خروجی استخراج متن معتبر نیست")
                             }
                         }
