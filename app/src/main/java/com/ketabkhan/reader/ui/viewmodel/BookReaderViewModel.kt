@@ -609,6 +609,16 @@ class BookReaderViewModel(application: Application) : AndroidViewModel(applicati
         goBack()
     }
 
+    fun continueToStructureReview() {
+        val state = _pdfProcessingState.value
+        val structure = _detectedStructure.value
+        if (state is PdfProcessingState.Success && structure != null) {
+            navigateTo(Screen.StructureReview)
+        } else {
+            showSnackbar("ساختار معتبری برای بررسی آماده نشده است")
+        }
+    }
+
     // Draft Metadata Editor
     fun setDraftMetadata(
         title: String,
